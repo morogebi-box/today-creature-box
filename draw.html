@@ -1,0 +1,76 @@
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>キサの生き物箱</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      padding: 40px 16px;
+      background: #faf5e9;
+      color: #42382d;
+    }
+    button {
+      font-size: 20px;
+      padding: 14px 24px;
+      border: 0;
+      border-radius: 12px;
+      background: #9c744b;
+      color: white;
+      cursor: pointer;
+    }
+    #result {
+      margin-top: 28px;
+      font-size: 18px;
+      line-height: 1.8;
+    }
+    #emoji {
+      font-size: 64px;
+    }
+  </style>
+</head>
+<body>
+  <h1>📦 キサの生き物箱</h1>
+  <p>箱を開けると、生き物が1匹出てきます。</p>
+  <button id="draw">箱を開ける</button>
+  <div id="result" aria-live="polite"></div>
+
+  <script>
+    const button = document.getElementById("draw");
+    const result = document.getElementById("result");
+
+    button.addEventListener("click", async () => {
+      result.textContent = "箱をごそごそ……";
+
+      try {
+        const response = await fetch("./creature.json");
+        if (!response.ok) throw new Error("データを読み込めません");
+
+        const creatures = await response.json();
+        const creature =
+          creatures[Math.floor(Math.random() * creatures.length)];
+
+        result.innerHTML = "";
+
+        const emoji = document.createElement("div");
+        emoji.id = "emoji";
+        emoji.textContent = creature.emoji;
+
+        const name = document.createElement("h2");
+        name.textContent = creature.name;
+
+        const description = document.createElement("p");
+        description.textContent = creature.description;
+
+        result.append(emoji, name, description);
+      } catch (error) {
+        result.textContent =
+          "箱が開きませんでした。少し待ってから試してね。";
+      }
+    });
+  </script>
+</body>
+</html>
