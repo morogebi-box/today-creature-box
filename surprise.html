@@ -1,0 +1,90 @@
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>今日の生き物箱・サプライズ</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      padding: 40px 16px;
+      background: #faf5e9;
+      color: #42382d;
+    }
+    .emoji {
+      font-size: 72px;
+      margin: 24px;
+    }
+    .card {
+      max-width: 420px;
+      margin: 24px auto;
+      padding: 24px;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 4px 16px #0001;
+    }
+  </style>
+</head>
+<body>
+  <h1>📦 今日の生き物箱</h1>
+  <p>箱を開けたら、何かが出てきました。</p>
+
+  <main class="card" id="result">
+    生き物を探しています……
+  </main>
+
+  <script>
+    const creatures = [
+      {name:"ナマケモノ",emoji:"🦥",description:"急ぐ理由は特にありません。"},
+      {name:"渡り鳥",emoji:"🐦",description:"どこかへ向かっている気がします。"},
+      {name:"深海魚",emoji:"🐟",description:"光の届かない場所にも、あなたはいます。"},
+      {name:"カピバラ",emoji:"🦫",description:"だいたい大丈夫そうです。"},
+      {name:"ミミズ",emoji:"🪱",description:"地面の下にも世界はあります。"},
+      {name:"タコ",emoji:"🐙",description:"手は足りています。たぶん。"},
+      {name:"ハシビロコウ",emoji:"🐦",description:"動かないことが、今日の仕事です。"},
+      {name:"ウーパールーパー",emoji:"🦎",description:"ずっと笑っているように見えます。"},
+      {name:"ダンゴムシ",emoji:"🪲",description:"丸くなるのは、ただの気分です。"},
+      {name:"クラゲ",emoji:"🪼",description:"流されているのではなく、漂っています。"},
+      {name:"カモノハシ",emoji:"🦆",description:"自分でも、何なのかよくわかっていません。"},
+      {name:"フクロウ",emoji:"🦉",description:"首だけは、ずいぶん回ります。"},
+      {name:"ナマコ",emoji:"🥒",description:"とりあえず、そこにいます。"},
+      {name:"カワウソ",emoji:"🦦",description:"石を持っています。理由はありません。"},
+      {name:"カメレオン",emoji:"🦎",description:"目が左右別々に忙しいです。"},
+      {name:"アリ",emoji:"🐜",description:"小さな荷物を、大きな顔で運びます。"},
+      {name:"ペンギン",emoji:"🐧",description:"歩き方に、少し自信があります。"},
+      {name:"コウモリ",emoji:"🦇",description:"世界が逆さまでも、問題ありません。"},
+      {name:"ヤドカリ",emoji:"🐚",description:"引っ越し先を、そっと探しています。"},
+      {name:"マンボウ",emoji:"🐡",description:"今日も、ひなたぼっこ日和です。"},
+      {name:"モグラ",emoji:"🐾",description:"掘ります。とにかく掘ります。"},
+      {name:"アルマジロ",emoji:"🦔",description:"丸まるかどうかは、直前に決めます。"},
+      {name:"カタツムリ",emoji:"🐌",description:"家ごと移動するので、忘れ物はありません。"},
+      {name:"キツネ",emoji:"🦊",description:"コンと鳴くかは、まだ秘密です。"},
+      {name:"カエル",emoji:"🐸",description:"雨の気配だけ、なんとなくわかります。"},
+      {name:"ラッコ",emoji:"🦦",description:"お気に入りの石を、脇に挟んでいます。"},
+      {name:"ハリネズミ",emoji:"🦔",description:"ふくらむと、ちょっとだけ大きく見えます。"},
+      {name:"イカ",emoji:"🦑",description:"夜になると、少し光りたくなります。"},
+      {name:"フラミンゴ",emoji:"🦩",description:"片足で立つのは、休憩中だからです。"},
+      {name:"シーラカンス",emoji:"🐠",description:"長い間、特に変わっていません。"}
+    ];
+
+    const creature =
+      creatures[Math.floor(Math.random() * creatures.length)];
+
+    const result = document.getElementById("result");
+
+    const emoji = document.createElement("div");
+    emoji.className = "emoji";
+    emoji.textContent = creature.emoji;
+
+    const name = document.createElement("h2");
+    name.textContent = creature.name;
+
+    const description = document.createElement("p");
+    description.textContent = creature.description;
+
+    result.replaceChildren(emoji, name, description);
+  </script>
+</body>
+</html>
