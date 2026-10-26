@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>今日の生き物箱</title>
+<style>
+:root{--bg:#f6efe2;--ink:#3b2f24;--box:#c9955c;--boxd:#a8743f;--lid:#d9a96e;--card:#fffaf0;--accent:#e0663a;color-scheme:light}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#241d17;--ink:#f3e8d6;--box:#8a5f35;--boxd:#6d4a29;--lid:#a07240;--card:#33291f;--accent:#f08a5d;color-scheme:dark}}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%}
+body{background:var(--bg);color:var(--ink);font-family:"Hiragino Maru Gothic ProN","Yu Gothic",system-ui,sans-serif;text-align:center;padding:env(safe-area-inset-top,0px) 16px env(safe-area-inset-bottom,0px);overflow-x:hidden}
+main{max-width:420px;margin:0 auto;padding:28px 0 40px}
+h1{font-size:1.9rem;margin:0 0 6px;letter-spacing:.08em}
+.sub{margin:0 0 22px;opacity:.8}
+.dim{position:fixed;inset:0;background:#05030c;opacity:0;pointer-events:none;z-index:5;transition:opacity .9s}
+.dim.on{opacity:.62}
+.stage,.result{position:relative;z-index:6}
+.stage{height:210px;margin:0 auto 12px;width:220px;--a:0px}
+.rig{position:absolute;inset:0}
+.box{position:absolute;left:20px;bottom:0;width:180px;height:110px;background:var(--box);border-radius:6px 6px 14px 14px;box-shadow:inset 0 -10px 0 var(--boxd);transition:box-shadow .6s}
+.box::after{content:"";position:absolute;left:70px;top:16px;width:40px;height:14px;border-radius:7px;background:var(--boxd)}
+.lid{position:absolute;left:10px;bottom:104px;width:200px;height:26px;background:var(--lid);border-radius:8px;transform-origin:left bottom;transition:transform .5s cubic-bezier(.3,1.6,.5,1);z-index:3}
+.stage.open .lid{transform:rotate(-62deg) translateY(-4px)}
+.stage.omen{--a:1.5px}.stage.charge{--a:3px}
+.stage.omen .rig{animation:sh .12s linear infinite}
+.stage.charge .rig{animation:sh .07s linear infinite}
+@keyframes sh{0%,100%{transform:translate(0,0)}25%{transform:translate(calc(var(--a)*-1),var(--a))}50%{transform:translate(var(--a),calc(var(--a)*-1))}75%{transform:translate(calc(var(--a)*-.5),calc(var(--a)*-1))}}
+.stage.glow .box{box-shadow:inset 0 -10px 0 var(--boxd),0 0 26px 6px rgba(255,214,110,.75);animation:pulse 1.2s ease-in-out infinite}
+.stage.charge .box{box-shadow:inset 0 -10px 0 var(--boxd),0 0 46px 14px rgba(255,236,160,.95);animation:pulse .6s ease-in-out infinite}
+@keyframes pulse{50%{filter:brightness(1.3)}}
+.star{position:absolute;left:50%;bottom:60px;width:7px;height:7px;margin-left:-3px;border-radius:50%;background:#ffe9a0;box-shadow:0 0 8px 2px #ffd25e;opacity:0;z-index:4;pointer-events:none;animation:star 1.6s ease-out forwards}
+.star.big{animation-duration:1.1s;width:10px;height:10px}
+@keyframes star{0%{transform:translate(0,0) scale(.3);opacity:0}25%{opacity:1}100%{transform:translate(var(--x),var(--y)) scale(1);opacity:0}}
+.burst{position:absolute;left:50%;bottom:70px;width:40px;height:40px;margin-left:-20px;border-radius:50%;background:radial-gradient(circle,#fff,rgba(255,220,120,.8) 40%,transparent 70%);opacity:0;z-index:4;pointer-events:none}
+.stage.open .burst{animation:burst .9s ease-out}
+@keyframes burst{0%{transform:scale(.3);opacity:.9}100%{transform:scale(6);opacity:0}}
+.pop{position:absolute;left:50%;bottom:90px;font-size:84px;line-height:1;transform:translateX(-50%) scale(0);z-index:2;opacity:0}
+.stage.open .pop{animation:pop .8s .15s cubic-bezier(.2,1.4,.4,1) forwards}
+@keyframes pop{0%{transform:translateX(-50%) translateY(40px) scale(.2) rotate(-200deg);opacity:0}60%{transform:translateX(-50%) translateY(-60px) scale(1.5) rotate(10deg);opacity:1}100%{transform:translateX(-50%) translateY(-20px) scale(1) rotate(0);opacity:1}}
+.result{min-height:150px;background:var(--card);border-radius:18px;padding:18px 16px;margin:14px 0 18px;box-shadow:0 2px 10px rgba(0,0,0,.1)}
+.lead{margin:0;opacity:.7;font-size:.95rem}
+.name{margin:6px 0 10px;font-size:2rem;font-weight:bold;color:var(--accent)}
+.line{margin:0;font-size:1.05rem;line-height:1.6}
+.ritual{margin:0;padding-top:34px;font-size:1.15rem;font-weight:bold;line-height:1.7;animation:fade .6s both}
+.result.show{animation:card .7s ease-out}
+@keyframes card{0%{transform:scale(.9);box-shadow:0 0 0 rgba(255,210,94,0)}50%{box-shadow:0 0 36px 8px rgba(255,210,94,.7)}100%{transform:scale(1)}}
+.result.show .name{animation:big .7s cubic-bezier(.2,1.6,.4,1)}
+@keyframes big{0%{transform:scale(.2) rotate(-12deg);opacity:0}60%{transform:scale(1.35) rotate(3deg)}100%{transform:scale(1) rotate(0);opacity:1}}
+.result.show .line{animation:fade .8s .4s both}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+button{font:inherit;font-size:1.2rem;font-weight:bold;border:0;border-radius:999px;padding:14px 34px;min-height:48px;background:var(--accent);color:#fff;cursor:pointer;box-shadow:0 4px 0 rgba(0,0,0,.2);touch-action:manipulation}
+button:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(0,0,0,.2)}
+button:disabled{opacity:.5;pointer-events:none}
+button.again{background:transparent;color:var(--ink);border:2px solid var(--ink);box-shadow:none}
+button.snd{display:block;margin:22px auto 0;font-size:.85rem;font-weight:normal;padding:8px 16px;min-height:40px;background:transparent;color:var(--ink);border:1px solid var(--ink);box-shadow:none;opacity:.7}
+[hidden]{display:none!important}
+@media (prefers-reduced-motion: reduce){
+  *{animation-duration:.01s!important;transition-duration:.2s!important}
+  .stage .rig,.stage .box{animation:none!important}
+  .star{display:none}
+}
+</style>
+</head>
+<body>
+<div class="dim" id="dim"></div>
+<main>
+  <h1>今日の生き物箱</h1>
+  <p class="sub">今日のあなたは、何かの生き物です。</p>
+  <div class="stage" id="stage">
+    <div class="pop" id="pop" aria-hidden="true"></div>
+    <div class="burst"></div>
+    <div class="rig">
+      <div class="box"></div>
+      <div class="lid"></div>
+    </div>
+  </div>
+  <div class="result" id="result" aria-live="polite">
+    <p class="lead">箱はまだ閉じています。</p>
+    <p class="line">なかには、たぶん何かいます。</p>
+  </div>
+  <button id="open">箱を開ける</button>
+  <button id="again" class="again" hidden>もう一回</button>
+  <button id="snd" class="snd" aria-pressed="false">🔇 音：OFF</button>
+</main>
+<script>
+const C=[
+["ナマケモノ","🦥","急ぐ理由は特にありません。"],
+["渡り鳥","🐦","どこかへ向かっている気がします。"],
+["深海魚","🐟","光の届かない場所にも、あなたはいます。"],
+["カピバラ","🦫","だいたい大丈夫そうです。"],
+["ミミズ","🪱","地面の下にも世界はあります。"],
+["タコ","🐙","手は足りています。たぶん。"],
+["ハシビロコウ","🐦","動かないことが、今日の仕事です。"],
+["ウーパールーパー","🦎","ずっと笑っているように見えます。"],
+["ダンゴムシ","🪲","丸くなるのは、ただの気分です。"],
+["クラゲ","🪼","流されているのではなく、漂っています。"],
+["カモノハシ","🦆","自分でも、何なのかよくわかっていません。"],
+["フクロウ","🦉","首だけは、ずいぶん回ります。"],
+["ナマコ","🥒","とりあえず、そこにいます。"],
+["カワウソ","🦦","石を持っています。理由はありません。"],
+["カメレオン","🦎","目が左右別々に忙しいです。"],
+["アリ","🐜","小さな荷物を、大きな顔で運びます。"],
+["ペンギン","🐧","歩き方に、少し自信があります。"],
+["コウモリ","🦇","世界が逆さまでも、問題ありません。"],
+["ヤドカリ","🐚","引っ越し先を、そっと探しています。"],
+["マンボウ","🐡","今日も、ひなたぼっこ日和です。"],
+["モグラ","🐾","掘ります。とにかく掘ります。"],
+["アルマジロ","🦔","丸まるかどうかは、直前に決めます。"],
+["カタツムリ","🐌","家ごと移動するので、忘れ物はありません。"],
+["キツネ","🦊","コンと鳴くかは、まだ秘密です。"],
+["カエル","🐸","雨の気配だけ、なんとなくわかります。"],
+["ラッコ","🦦","お気に入りの石を、脇に挟んでいます。"],
+["ハリネズミ","🦔","ふくらむと、ちょっとだけ大きく見えます。"],
+["イカ","🦑","夜になると、少し光りたくなります。"],
+["フラミンゴ","🦩","片足で立つのは、休憩中だからです。"],
+["シーラカンス","🐠","長い間、特に変わっていません。"]
+];
+const $=id=>document.getElementById(id);
+const stage=$("stage"),pop=$("pop"),res=$("result"),dim=$("dim"),openB=$("open"),again=$("again"),snd=$("snd");
+const RM=matchMedia("(prefers-reduced-motion: reduce)");
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+let last=-1,busy=false,soundOn=false,ac=null,starTimer=null;
+
+/* 音（初期は無音。ボタンで明示的にON） */
+function tone(f,d,type="sine",v=.05,w=0){
+  if(!soundOn||!ac)return;
+  const t=ac.currentTime+w,o=ac.createOscillator(),g=ac.createGain();
+  o.type=type;o.frequency.value=f;
+  g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.0001,t+d);
+  o.connect(g);g.connect(ac.destination);o.start(t);o.stop(t+d);
+}
+snd.onclick=()=>{
+  soundOn=!soundOn;
+  if(soundOn){ac=ac||new(window.AudioContext||window.webkitAudioContext)();ac.resume();tone(660,.15)}
+  snd.textContent=soundOn?"🔊 音：ON":"🔇 音：OFF";
+  snd.setAttribute("aria-pressed",soundOn);
+};
+
+/* 光の粒 */
+function stars(n,big){
+  if(RM.matches)return;
+  for(let k=0;k<n;k++){
+    const s=document.createElement("span");
+    s.className="star"+(big?" big":"");
+    const x=(Math.random()*2-1)*(big?105:90),y=-(Math.random()*(big?200:170))+20;
+    s.style.setProperty("--x",x+"px");s.style.setProperty("--y",y+"px");
+    s.style.animationDelay=(Math.random()*.4)+"s";
+    s.addEventListener("animationend",()=>s.remove());
+    stage.appendChild(s);
+  }
+}
+function ritual(html){res.innerHTML='<p class="ritual">'+html+'</p>';}
+function setBusy(b){busy=b;openB.disabled=b;again.disabled=b;}
+
+async function draw(){
+  if(busy)return;
+  setBusy(true);
+  let i;do{i=Math.floor(Math.random()*C.length)}while(i===last&&Math.random()<.7);
+  last=i;
+  const rm=RM.matches;
+  const T=rm?[150,150,500,500]:[900,900,1400,1200]; /* 予兆 / 召喚準備 / 緊迫 / 最終局面 */
+  stage.classList.remove("open");res.classList.remove("show");
+  await sleep(rm?0:350); /* フタが閉じる */
+
+  /* 1 予兆 */
+  dim.classList.add("on");stage.classList.add("omen");tone(80,1.2,"sawtooth",.04);
+  await sleep(T[0]);
+  /* 2 召喚準備 */
+  stage.classList.add("glow");tone(220,1,"sine",.05);
+  stars(8);starTimer=setInterval(()=>stars(8),350);
+  await sleep(T[1]);
+  /* 3 緊迫 */
+  stage.classList.add("charge");ritual("世界の均衡が揺らいでいる……");tone(110,1.3,"triangle",.06);
+  await sleep(T[2]);
+  /* 4 最終局面 */
+  ritual("まもなく、すべてが明らかになる。");tone(330,1,"triangle",.06);
+  await sleep(T[3]);
+  /* 5 開封 */
+  clearInterval(starTimer);
+  stage.classList.remove("omen","glow","charge");
+  dim.classList.remove("on");
+  const [n,e,t]=C[i];
+  pop.textContent=e;
+  stage.classList.add("open");stars(22,true);
+  tone(660,.4,"sine",.07);tone(880,.5,"sine",.06,.12);
+  /* 6 余韻 */
+  res.innerHTML='<p class="lead">今日のあなたは……</p><p class="name"></p><p class="line"></p>';
+  res.querySelector(".name").textContent=n+"です。";
+  res.querySelector(".line").textContent=t;
+  void res.offsetWidth;res.classList.add("show");
+  openB.hidden=true;again.hidden=false;
+  await sleep(rm?100:800);
+  setBusy(false);
+}
+openB.onclick=draw;again.onclick=draw;
+</script>
+</body>
+</html>
